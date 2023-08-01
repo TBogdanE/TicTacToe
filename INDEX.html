@@ -1,13 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="app.css">
+    <link rel="stylesheet" type="text/css" href="design.css">
     <title>Document</title>
 </head>
+
 <body>
-    
+    <div id="overlay-start-game">
+
+    </div>
+    <header>
+        <div id="header-title">
+            TicTacToe
+        </div>
+    </header>
+    <div id="game-container">
+        <button class="field">
+            <p></p>
+        </button>
+        <button class="field">
+            <p></p>
+        </button>
+        <button class="field">
+            <p></p>
+        </button>
+        <button class="field">
+            <p></p>
+        </button>
+        <button class="field">
+            <p></p>
+        </button>
+        <button class="field">
+            <p></p>
+        </button>
+        <button class="field">
+            <p></p>
+        </button>
+        <button class="field">
+            <p></p>
+        </button>
+        <button class="field">
+            <p></p>
+        </button>
+    </div>
+
+    <div id="left-menu">
+        <div id="menu-opponent" class="menu-box">
+            <p>Choose your opponent</p>
+            <div class="menu-btn-sct">
+                <button id="opponent-player" class="menu-btn">
+                    Player
+                </button>
+                <button id="opponent-ai" class="menu-btn">
+                    Computer
+                </button>
+            </div>
+        </div>
+        <div id="menu-w" class="menu-box">
+            <p>Choose your weapon</p>
+            <div class="menu-btn-sct">
+                <button id="w-x" class="menu-btn">
+                    <p>X</p>
+                </button>
+                <button id="w-o" class="menu-btn">
+                    <p>O</p>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="right-menu">
+
+    </div>
+
+    <button id="restart-btn">
+        Restart
+    </button>
     <script src="app.js"></script>
 </body>
+
 </html>

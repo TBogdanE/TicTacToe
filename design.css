@@ -1,0 +1,111 @@
+body {
+    display: grid;
+    grid-template: repeat(15, 1fr) / repeat(15, 1fr);
+    gap: 0.5em;
+    background-image: url(/assets/images/background-pattern.jpg);
+    background-size: 100%;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+header {
+    grid-area: 1 / 1 / 3 / 16;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(255, 255, 255);
+    color: rgb(57, 57, 57);
+    border: 0.05em solid rgb(57, 57, 57);
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0 0 20px 20px;
+    font-size: 2.5em;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+#left-menu {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    grid-area: 4 / 2 / 13 / 5;
+    background-color: transparent;
+    border: 0.1em solid rgb(57, 57, 57);
+    border-radius: 20px;
+    font-size: 1em;
+    padding: 1em;
+}
+
+.menu-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-size: 1.2em;
+    text-align: center;
+    padding: 1em;
+}
+
+.menu-btn-sct {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.menu-btn {
+    border: 0.1em solid rgb(57, 57, 57);
+    border-radius: 10px;
+    margin: 0.5em;
+    height: 4em;
+    width: 6em;
+    text-align: center;
+    background-color: transparent;
+    transition: 0.2s ease-in-out;
+}
+
+.menu-btn:hover {
+    background-color: rgb(57, 57, 57);
+    color: white;
+}
+
+#right-menu {
+    grid-area: 4 / 12 / 13 / 15;
+    background-color: transparent;
+    border: 0.1em solid rgb(57, 57, 57);
+    border-radius: 20px;
+}
+
+#game-container {
+    grid-area: 4 / 6 / 12 / 11;
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+    background-color: rgb(199, 199, 199);
+    border-radius: 20px;
+    padding: 0.4em;
+}
+
+.field {
+    border: 0;
+    border-radius: 7px;
+    background-color: white;
+    filter: opacity(80%);
+    width: 90%;
+    height: 90%;
+}
+
+#restart-btn {
+    display: flex;
+    background-color: rgb(199, 199, 199);
+    border: 0;
+    border-radius: 10px;
+    grid-area: 12 / 6 / 13 / 11;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.3em;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}

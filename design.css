@@ -27,7 +27,7 @@ header {
 
 #left-menu {
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
     flex-direction: column;
     grid-area: 4 / 2 / 13 / 5;
@@ -64,6 +64,18 @@ header {
     text-align: center;
     background-color: transparent;
     transition: 0.2s ease-in-out;
+}
+
+.menu-btn.active {
+    border: 0.1em solid rgb(57, 57, 57);
+    border-radius: 10px;
+    margin: 0.5em;
+    height: 4em;
+    width: 6em;
+    text-align: center;
+    transition: 0.2s ease-in-out;
+    background-color: rgb(57, 57, 57);
+    color: rgb(255, 255, 255);
 }
 
 .menu-btn:hover {

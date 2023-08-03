@@ -10,11 +10,10 @@ const gameController = (() => {
     userElementO.addEventListener('click', () => gameBoard.setUserSign('O'));
     humanPlayer.addEventListener('click', () => gameBoard.setSecondPlayer('humanPlayer'));
     aiPlayer.addEventListener('click', () => gameBoard.setSecondPlayer('aiPlayer'));
-
-    fieldBtn.forEach(btn => {
-        btn.addEventListener('click', () =>{
-            console.log('sal');
-        });
+    fieldBtn.forEach((btn, index) => {
+        const x = Math.floor(index / 3); // Calculate the row (x coordinate)
+        const y = index % 3;
+        btn.addEventListener('click', () => gameBoard.startGame(x,y));
     });
 
     return {
@@ -35,8 +34,10 @@ const gameBoard = (() => {
     ];
 
     let userSign = 'X';
+    let userTurn = true;
     let secondPlayer = 'humanPlayer';
     let secondPlayerSign = 'O';
+    let secondPlayerTurn = false;
     console.log(userSign, secondPlayer, secondPlayerSign);
 
     // Private function to handle user sign selection
@@ -54,13 +55,28 @@ const gameBoard = (() => {
         console.log(`Second player is: ${player}, and his sign is ${secondPlayerSign}`);
     }
 
-
+    function startGame(posX, posY) {
+        if (gameBoardArray[posX][posY] === '') {
+            if (userTurn === true) {
+                gameBoardArray[posX][posY] = userSign;
+                userTurn = false;
+                secondPlayerTurn = true;
+            } else {
+                gameBoardArray[posX][posY] = secondPlayerSign;
+                userTurn = true;
+                secondPlayerTurn = false;
+            }
+            console.log(gameBoardArray);
+        } else {
+            console.error('Error! You can\t take this spot');
+        }
+    }
 
 
     return {
-        gameBoardArray,
         setUserSign,
         setSecondPlayer,
+        startGame,
     };
 })();
 

@@ -4,6 +4,7 @@ const gameController = (() => {
     const humanPlayer = document.getElementById('opponent-player');
     const aiPlayer = document.getElementById('opponent-ai');
     const fieldBtn = document.querySelectorAll('.field');
+    const restartBtn = document.getElementById('restart-btn');
 
 
     userElementX.addEventListener('click', () => gameBoard.setUserSign('X'));
@@ -13,8 +14,9 @@ const gameController = (() => {
     fieldBtn.forEach((btn, index) => {
         const x = Math.floor(index / 3); // Calculate the row (x coordinate)
         const y = index % 3;
-        btn.addEventListener('click', () => gameBoard.startGame(x,y));
+        btn.addEventListener('click', () => gameBoard.startGame(x, y, index));
     });
+    restartBtn.addEventListener('click', () => gameBoard.resetGame());
 
     return {
         userElementX,
@@ -27,7 +29,7 @@ const gameController = (() => {
 
 const gameBoard = (() => {
     // Private state
-    const gameBoardArray = [
+    let gameBoardArray = [
         ['', '', ''],
         ['', '', ''],
         ['', '', '']
@@ -55,14 +57,16 @@ const gameBoard = (() => {
         console.log(`Second player is: ${player}, and his sign is ${secondPlayerSign}`);
     }
 
-    function startGame(posX, posY) {
+    function startGame(posX, posY, posField) {
         if (gameBoardArray[posX][posY] === '') {
             if (userTurn === true) {
                 gameBoardArray[posX][posY] = userSign;
+                boardUi.updateGameArray(posField, userSign);
                 userTurn = false;
                 secondPlayerTurn = true;
             } else {
                 gameBoardArray[posX][posY] = secondPlayerSign;
+                boardUi.updateGameArray(posField, secondPlayerSign);
                 userTurn = true;
                 secondPlayerTurn = false;
             }
@@ -72,11 +76,26 @@ const gameBoard = (() => {
         }
     }
 
+    function resetGame() {
+        gameBoardArray = [
+            ['', '', ''],
+            ['', '', ''],
+            ['', '', '']
+        ];
+        userSign = 'X';
+        userTurn = true;
+        secondPlayer = 'humanPlayer';
+        secondPlayerSign = 'O';
+        secondPlayerTurn = false;
+        boardUi.resetUI();
+    }
+
 
     return {
         setUserSign,
         setSecondPlayer,
         startGame,
+        resetGame,
     };
 })();
 
@@ -107,9 +126,24 @@ const boardUi = (() => {
             gameController.humanPlayer.classList.remove('active');
         }
     }
+
+    function updateGameArray(posField, sign) {
+        const targetBtn = gameController.fieldBtn[posField];
+        targetBtn.innerHTML = sign;
+    }
+
+    function resetUI() {
+        gameController.fieldBtn.forEach((btn) => {
+            btn.innerHTML = '';
+            console.log()
+        });
+    }
+
     return {
         updateSignButtonUI,
         updateSecondPlayerUI,
+        updateGameArray,
+        resetUI,
     }
 })();
 

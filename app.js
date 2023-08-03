@@ -1,44 +1,67 @@
-const gameBoard = (() => {
-    // Private state
-    const gameBoardArray = ['', '', '', '', '', '', '', '', ''];
-    let userSign = 'X'; // Default user sign is 'X'
-
-    //event listeners
-
-    // Private function to handle user sign selection
-    function setUserSign(selectedSign) {
-        userSign = selectedSign;
-        boardUi.updateSignButtonUI(userSign);
-    }
-
-    function setSecondPlayer(player) {
-        let secondPlayer = player;
-        boardUi.updateSecondPlayerUI(secondPlayer);
-    }
-
-    // Public methods (interface)
-    return {
-        setUserSign,
-        setSecondPlayer,
-    };
-})();
-
 const gameController = (() => {
     const userElementX = document.getElementById('w-x');
     const userElementO = document.getElementById('w-o');
     const humanPlayer = document.getElementById('opponent-player');
     const aiPlayer = document.getElementById('opponent-ai');
+    const fieldBtn = document.querySelectorAll('.field');
+
+
     userElementX.addEventListener('click', () => gameBoard.setUserSign('X'));
     userElementO.addEventListener('click', () => gameBoard.setUserSign('O'));
     humanPlayer.addEventListener('click', () => gameBoard.setSecondPlayer('humanPlayer'));
     aiPlayer.addEventListener('click', () => gameBoard.setSecondPlayer('aiPlayer'));
+
+    fieldBtn.forEach(btn => {
+        btn.addEventListener('click', () =>{
+            console.log('sal');
+        });
+    });
 
     return {
         userElementX,
         userElementO,
         humanPlayer,
         aiPlayer,
+        fieldBtn,
     }
+})();
+
+const gameBoard = (() => {
+    // Private state
+    const gameBoardArray = [
+        ['', '', ''],
+        ['', '', ''],
+        ['', '', '']
+    ];
+
+    let userSign = 'X';
+    let secondPlayer = 'humanPlayer';
+    let secondPlayerSign = 'O';
+    console.log(userSign, secondPlayer, secondPlayerSign);
+
+    // Private function to handle user sign selection
+    function setUserSign(selectedSign) {
+        userSign = selectedSign;
+        secondPlayerSign = userSign === 'X' ? 'O' : 'X';
+        boardUi.updateSignButtonUI(userSign);
+        console.log(`I am: ${selectedSign} and the other player is ${secondPlayer}: ${secondPlayerSign}`);
+        return userSign;
+    }
+
+    function setSecondPlayer(player) {
+        secondPlayer = player;
+        boardUi.updateSecondPlayerUI(secondPlayer);
+        console.log(`Second player is: ${player}, and his sign is ${secondPlayerSign}`);
+    }
+
+
+
+
+    return {
+        gameBoardArray,
+        setUserSign,
+        setSecondPlayer,
+    };
 })();
 
 const boardUi = (() => {
@@ -50,31 +73,22 @@ const boardUi = (() => {
 
     //FUNCTIONS 
     function updateSignButtonUI(sign) {
-        console.log(`User sign is: ${sign}`);
         if (sign === 'X') {
-            gameController.userElementX.style.backgroundColor = 'rgb(57, 57, 57)';
-            gameController.userElementX.style.color = 'rgb(255, 255, 255)';
-            gameController.userElementO.style.backgroundColor = 'rgb(255, 255, 255)';
-            gameController.userElementO.style.color = 'rgb(57, 57, 57)';
+            gameController.userElementX.classList.add('active');
+            gameController.userElementO.classList.remove('active');
         } else if (sign === 'O') {
-            gameController.userElementO.style.backgroundColor = 'rgb(57, 57, 57)';
-            gameController.userElementO.style.color = 'rgb(255, 255, 255)';
-            gameController.userElementX.style.backgroundColor = 'rgb(255, 255, 255)';
-            gameController.userElementX.style.color = 'rgb(57, 57, 57)';
+            gameController.userElementO.classList.add('active');
+            gameController.userElementX.classList.remove('active');
         }
-    }   
+    }
+
     function updateSecondPlayerUI(secondPlayer) {
-        console.log(`Second player is: ${secondPlayer}`);
         if (secondPlayer === 'humanPlayer') {
-            gameController.humanPlayer.style.backgroundColor = 'rgb(57, 57, 57)';
-            gameController.humanPlayer.style.color = 'rgb(255, 255, 255)';
-            gameController.aiPlayer.style.backgroundColor = 'rgb(255, 255, 255)';
-            gameController.aiPlayer.style.color = 'rgb(57, 57, 57)';
+            gameController.humanPlayer.classList.add('active');
+            gameController.aiPlayer.classList.remove('active');
         } else if (secondPlayer === 'aiPlayer') {
-            gameController.aiPlayer.style.backgroundColor = 'rgb(57, 57, 57)';
-            gameController.aiPlayer.style.color = 'rgb(255, 255, 255)';
-            gameController.humanPlayer.style.backgroundColor = 'rgb(255, 255, 255)';
-            gameController.humanPlayer.style.color = 'rgb(57, 57, 57)';
+            gameController.aiPlayer.classList.add('active');
+            gameController.humanPlayer.classList.remove('active');
         }
     }
     return {
@@ -82,6 +96,8 @@ const boardUi = (() => {
         updateSecondPlayerUI,
     }
 })();
+
+
 
 /* TO DO:
 - Game board;

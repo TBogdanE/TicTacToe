@@ -12,7 +12,7 @@ const gameController = (() => {
     humanPlayer.addEventListener('click', () => gameBoard.setSecondPlayer('humanPlayer'));
     aiPlayer.addEventListener('click', () => gameBoard.setSecondPlayer('aiPlayer'));
     fieldBtn.forEach((btn, index) => {
-        const x = Math.floor(index / 3); // Calculate the row (x coordinate)
+        const x = Math.floor(index / 3);
         const y = index % 3;
         btn.addEventListener('click', () => gameBoard.startGame(x, y, index));
     });
@@ -39,7 +39,6 @@ const gameBoard = (() => {
     let userTurn = true;
     let secondPlayer = 'humanPlayer';
     let secondPlayerSign = 'O';
-    let secondPlayerTurn = false;
     console.log(userSign, secondPlayer, secondPlayerSign);
 
     // Private function to handle user sign selection
@@ -51,7 +50,7 @@ const gameBoard = (() => {
         return userSign;
     }
 
-    function setSecondPlayer(player) {
+    function setSecondPlayerType(player) {
         secondPlayer = player;
         boardUi.updateSecondPlayerUI(secondPlayer);
         console.log(`Second player is: ${player}, and his sign is ${secondPlayerSign}`);
@@ -63,12 +62,10 @@ const gameBoard = (() => {
                 gameBoardArray[posX][posY] = userSign;
                 boardUi.updateGameArray(posField, userSign);
                 userTurn = false;
-                secondPlayerTurn = true;
             } else {
                 gameBoardArray[posX][posY] = secondPlayerSign;
                 boardUi.updateGameArray(posField, secondPlayerSign);
                 userTurn = true;
-                secondPlayerTurn = false;
             }
             console.log(gameBoardArray);
         } else {
@@ -86,14 +83,13 @@ const gameBoard = (() => {
         userTurn = true;
         secondPlayer = 'humanPlayer';
         secondPlayerSign = 'O';
-        secondPlayerTurn = false;
         boardUi.resetUI();
     }
 
 
     return {
         setUserSign,
-        setSecondPlayer,
+        setSecondPlayerType,
         startGame,
         resetGame,
     };

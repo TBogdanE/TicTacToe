@@ -18,7 +18,13 @@ const gameController = (() => {
     });
     restartBtn.addEventListener('click', () => gameBoard.resetGame());
 
-    return {
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            gameBoard;
+        }
+    });
+
+        return {
         userElementX,
         userElementO,
         humanPlayer,
@@ -65,6 +71,16 @@ const gameBoard = (() => {
             return;
         }
 
+        if (userTurn) {
+            makeMove(posX, posY, posField);
+        } else if (!userTurn && secondPlayer === 'humanPlayer') {
+            makeMove(posX, posY, posField);
+        } else if (!userTurn && secondPlayer === 'aiPlayer') {
+            moveAi();
+        }
+    }
+
+    function makeMove(posX, posY, posField) {
         if (gameBoardArray[posX][posY] === '') {
             if (userTurn === true) {
                 gameBoardArray[posX][posY] = userSign;
@@ -96,13 +112,13 @@ const gameBoard = (() => {
             if (flattenedBoard[a] === sign && flattenedBoard[b] === sign && flattenedBoard[c] === sign) {
                 winner = sign;
                 console.log(`Winner: ${winner}`);
-                boardUi.handleWinner(winner);
+                boardUi.overlayToggle(winner);
                 return;
             }
         }
 
         if (isBoardFull(board) && !winner) {
-            boardUi.handleTie();
+            boardUi.overlayToggle(winner);
             return;
         }
     }
@@ -142,7 +158,7 @@ const gameBoard = (() => {
 
 const boardUi = (() => {
 
-    function handleWinner(sign) {
+    /*function handleWinner(sign) {
         const overlay = gameController.overlay;
         if (overlay.classList.contains('active')) {
             overlay.classList.remove('active');
@@ -163,6 +179,21 @@ const boardUi = (() => {
             overlay.classList.add('active');
             console.log('toggle');
             overlay.innerText = `It's tie!`;
+        }
+    }*/
+
+    function overlayToggle(winner) {
+        if (overlay.classList.contains('active')) {
+            overlay.classList.remove('active');
+            overlay.innerText = '';
+        } else {
+            overlay.classList.add('active');
+            console.log('toggle');
+            if(winner === 'X' || winner === 'O') {
+                overlay.innerText = `Winner is ${winner}`;
+            } else {
+                overlay.innerHTML = `It\'s a tie`;
+            }
         }
     }
 
@@ -203,8 +234,7 @@ const boardUi = (() => {
         updateSignButtonUI,
         updateSecondPlayerUI,
         updateGameArray,
-        handleWinner,
-        handleTie,
+        overlayToggle,
         resetUI,
     }
 })();

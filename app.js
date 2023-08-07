@@ -5,12 +5,12 @@ const gameController = (() => {
     const aiPlayer = document.getElementById('opponent-ai');
     const fieldBtn = document.querySelectorAll('.field');
     const restartBtn = document.getElementById('restart-btn');
-
+    const overlay = document.getElementById('overlay');
 
     userElementX.addEventListener('click', () => gameBoard.setUserSign('X'));
     userElementO.addEventListener('click', () => gameBoard.setUserSign('O'));
-    humanPlayer.addEventListener('click', () => gameBoard.setSecondPlayer('humanPlayer'));
-    aiPlayer.addEventListener('click', () => gameBoard.setSecondPlayer('aiPlayer'));
+    humanPlayer.addEventListener('click', () => gameBoard.setSecondPlayerType('humanPlayer'));
+    aiPlayer.addEventListener('click', () => gameBoard.setSecondPlayerType('aiPlayer'));
     fieldBtn.forEach((btn, index) => {
         const x = Math.floor(index / 3);
         const y = index % 3;
@@ -24,6 +24,7 @@ const gameController = (() => {
         humanPlayer,
         aiPlayer,
         fieldBtn,
+        overlay,
     }
 })();
 
@@ -39,10 +40,11 @@ const gameBoard = (() => {
     let userTurn = true;
     let secondPlayer = 'humanPlayer';
     let secondPlayerSign = 'O';
-    console.log(userSign, secondPlayer, secondPlayerSign);
+    let winner = undefined;
 
     // Private function to handle user sign selection
     function setUserSign(selectedSign) {
+        resetGame();
         userSign = selectedSign;
         secondPlayerSign = userSign === 'X' ? 'O' : 'X';
         boardUi.updateSignButtonUI(userSign);
@@ -51,27 +53,69 @@ const gameBoard = (() => {
     }
 
     function setSecondPlayerType(player) {
+        resetGame();
         secondPlayer = player;
         boardUi.updateSecondPlayerUI(secondPlayer);
         console.log(`Second player is: ${player}, and his sign is ${secondPlayerSign}`);
     }
 
     function startGame(posX, posY, posField) {
+        if (winner !== undefined) {
+            console.log('Game has already been won!');
+            return;
+        }
+
         if (gameBoardArray[posX][posY] === '') {
             if (userTurn === true) {
                 gameBoardArray[posX][posY] = userSign;
                 boardUi.updateGameArray(posField, userSign);
                 userTurn = false;
+                checkWin(gameBoardArray, userSign);
             } else {
                 gameBoardArray[posX][posY] = secondPlayerSign;
                 boardUi.updateGameArray(posField, secondPlayerSign);
                 userTurn = true;
+                checkWin(gameBoardArray, secondPlayerSign);
             }
-            console.log(gameBoardArray);
         } else {
             console.error('Error! You can\t take this spot');
         }
     }
+
+    function checkWin(board, sign) {
+        const winningCombinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+            [0, 4, 8], [2, 4, 6] // Diagonals
+        ];
+
+        const flattenedBoard = board.reduce((acc, row) => acc.concat(row), []);
+
+        for (let i = 0; i < winningCombinations.length; i++) {
+            const [a, b, c] = winningCombinations[i];
+            if (flattenedBoard[a] === sign && flattenedBoard[b] === sign && flattenedBoard[c] === sign) {
+                winner = sign;
+                console.log(`Winner: ${winner}`);
+                boardUi.handleWinner(winner);
+                return;
+            }
+        }
+
+        if (isBoardFull(board) && !winner) {
+            boardUi.handleTie();
+            return;
+        }
+    }
+
+    function isBoardFull(board) {
+        for (let row of board) {
+            if (row.includes('')) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     function resetGame() {
         gameBoardArray = [
@@ -83,6 +127,7 @@ const gameBoard = (() => {
         userTurn = true;
         secondPlayer = 'humanPlayer';
         secondPlayerSign = 'O';
+        winner = undefined;
         boardUi.resetUI();
     }
 
@@ -96,13 +141,31 @@ const gameBoard = (() => {
 })();
 
 const boardUi = (() => {
-    //DOM
-    //const restartBtn = document.getElementById('restart-btn');
 
-    //EVENTS
-    //restartBtn.addEventListener('click', restartGame);
+    function handleWinner(sign) {
+        const overlay = gameController.overlay;
+        if (overlay.classList.contains('active')) {
+            overlay.classList.remove('active');
+            overlay.innerText = '';
+        } else {
+            overlay.classList.add('active');
+            console.log('toggle');
+            overlay.innerText = `Winner is ${sign}`;
+        }
+    }
 
-    //FUNCTIONS 
+    function handleTie() {
+        const overlay = gameController.overlay;
+        if (overlay.classList.contains('active')) {
+            overlay.classList.remove('active');
+            overlay.innerText = '';
+        } else {
+            overlay.classList.add('active');
+            console.log('toggle');
+            overlay.innerText = `It's tie!`;
+        }
+    }
+
     function updateSignButtonUI(sign) {
         if (sign === 'X') {
             gameController.userElementX.classList.add('active');
@@ -128,6 +191,7 @@ const boardUi = (() => {
         targetBtn.innerHTML = sign;
     }
 
+
     function resetUI() {
         gameController.fieldBtn.forEach((btn) => {
             btn.innerHTML = '';
@@ -139,6 +203,8 @@ const boardUi = (() => {
         updateSignButtonUI,
         updateSecondPlayerUI,
         updateGameArray,
+        handleWinner,
+        handleTie,
         resetUI,
     }
 })();
@@ -146,9 +212,9 @@ const boardUi = (() => {
 
 
 /* TO DO:
-- Game board;
-- Get user sign;
-- Select opponent;
-- Update gameBoard;
+- DONE - Game board;
+- DONE - Get user sign;
+- DONE - Select opponent;
+- DONE - Update gameBoard;
 - Minmax AI;
 */

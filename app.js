@@ -138,6 +138,7 @@ const gameBoard = (() => {
     }
 
     if (isBoardFull(board) && !winner) {
+      winner = "tie";
       boardUi.overlayToggle(winner);
       return;
     }

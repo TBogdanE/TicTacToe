@@ -3,6 +3,7 @@ const gameController = (() => {
   const userElementO = document.getElementById("w-o");
   const humanPlayer = document.getElementById("opponent-player");
   const aiPlayer = document.getElementById("opponent-ai");
+  const aiPlayerDifficulty = document.getElementById('difficulty');
   const fieldBtn = document.querySelectorAll(".field");
   const restartBtn = document.getElementById("restart-btn");
   const overlay = document.getElementById("overlay");
@@ -15,6 +16,12 @@ const gameController = (() => {
   aiPlayer.addEventListener("click", () =>
     gameBoard.setSecondPlayerType("aiPlayer")
   );
+
+  aiPlayerDifficulty.addEventListener('change', () => {
+    gameBoard.aiDifficulty = aiPlayerDifficulty.value;
+    gameBoard.resetGame();
+  });
+
   fieldBtn.forEach((btn, index) => {
     const x = Math.floor(index / 3);
     const y = index % 3;
@@ -53,6 +60,7 @@ const gameBoard = (() => {
   let userTurn = true;
   let secondPlayer = "humanPlayer";
   let secondPlayerSign = "O";
+  let aiDifficulty = 'Easy';
   let winner = undefined;
 
   // Private function to handle user sign selection
@@ -87,7 +95,7 @@ const gameBoard = (() => {
     } else if (!userTurn && secondPlayer === "humanPlayer") {
       makeMove(posX, posY, posField);
     } else if (!userTurn && secondPlayer === "aiPlayer") {
-      moveAi();
+      moveAi(aiDifficulty);
     }
   }
 

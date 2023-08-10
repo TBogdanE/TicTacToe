@@ -1,4 +1,6 @@
+//Event Listeners and everything that can be controlled on the page
 const gameController = (() => {
+  //initialising variables
   const userElementX = document.getElementById("w-x");
   const userElementO = document.getElementById("w-o");
   const humanPlayer = document.getElementById("opponent-player");
@@ -8,33 +10,41 @@ const gameController = (() => {
   const restartBtn = document.getElementById("restart-btn");
   const overlay = document.getElementById("overlay");
 
+  //set user sign
   userElementX.addEventListener("click", () => gameBoard.setUserSign("X"));
   userElementO.addEventListener("click", () => gameBoard.setUserSign("O"));
+  //choose second player type
   humanPlayer.addEventListener("click", () =>
     gameBoard.setSecondPlayerType("humanPlayer")
   );
   aiPlayer.addEventListener("click", () =>
     gameBoard.setSecondPlayerType("aiPlayer")
   );
-
+  //set aiPlayer difficulty
   aiPlayerDifficulty.addEventListener("change", () => {
     gameBoard.resetGame();
     gameBoard.getAiDifficulty(aiPlayerDifficulty.value);
   });
 
+  //getting all the fields of the game
   fieldBtn.forEach((btn, index) => {
+    //getting the coordonates in the 2D array
     const x = Math.floor(index / 3);
     const y = index % 3;
     btn.addEventListener("click", () => gameBoard.startGame(x, y, index));
   });
+
+  //initialising the restart btn
   restartBtn.addEventListener("click", () => gameBoard.resetGame());
 
+  //when user presses ESC after overlay is shown, hide it back and resets the game
   document.addEventListener("keydown", (event) => {
     if (
       event.key === "Escape" &&
       gameController.overlay.classList.contains("active")
     ) {
       boardUi.overlayToggle("");
+      gameBoard.resetGame();
     }
   });
 
@@ -48,14 +58,16 @@ const gameController = (() => {
   };
 })();
 
+//main logic of the game
 const gameBoard = (() => {
-  // Private state
+  //initialising the array
   let gameBoardArray = [
     ["", "", ""],
     ["", "", ""],
     ["", "", ""],
   ];
 
+  //initialising variables
   let userSign = "X";
   let userTurn = true;
   let secondPlayer = "humanPlayer";
@@ -63,33 +75,30 @@ const gameBoard = (() => {
   let aiDifficulty = "Easy";
   let winner = undefined;
 
-  // Private function to handle user sign selection
+  // set user and second player sign based on the user sign
   function setUserSign(selectedSign) {
     resetGame();
     userSign = selectedSign;
     secondPlayerSign = userSign === "X" ? "O" : "X";
     boardUi.updateSignButtonUI(userSign);
-    console.log(
-      `I am: ${selectedSign} and the other player is ${secondPlayer}: ${secondPlayerSign}`
-    );
     return userSign;
   }
 
+  // sets the second player type
   function setSecondPlayerType(player) {
     resetGame();
     secondPlayer = player;
     boardUi.updateSecondPlayerUI(secondPlayer);
-    console.log(
-      `Second player is: ${player}, and his sign is ${secondPlayerSign}`
-    );
   }
 
+  //playing the game
   function startGame(posX, posY, posField) {
+    //checks if the game is won, so players cannot make new moves
     if (winner !== undefined) {
       console.log("Game has already been won!");
       return;
     }
-
+    //switching the turns and make secondPlayer move acording to player type
     if (userTurn) {
       makeMove(posX, posY, posField);
     } else if (!userTurn && secondPlayer === "humanPlayer") {
@@ -99,6 +108,7 @@ const gameBoard = (() => {
     }
   }
 
+  // makes the user and human second player moves
   function makeMove(posX, posY, posField) {
     if (gameBoardArray[posX][posY] === "") {
       if (userTurn === true) {
@@ -117,13 +127,22 @@ const gameBoard = (() => {
     }
   }
 
+  //setting the difficulty level of the aiPlayer
   function getAiDifficulty(difficulty) {
     aiDifficulty = difficulty;
+    return aiDifficulty;
   }
 
-  function aiPlayer(newBoard, player) {
-    console.log(aiDifficulty);
-    let availableFields = emptyIndex(newBoard);
+  const currentArrayState = gameBoardArray
+    .map((row) => [...row])
+    .reduce((acc, row) => acc.concat(row), []);
+
+  function emptyCell(currentArrayState) {
+    return currentArrayState.filter((i) => i !== "X" && i !== "O");
+  }
+
+  function aiPlayer(currentBS, sign) {
+    /*let availableFields = emptyIndex(newBoard);
     let moves = [];
     let move = {};
     move.index = newBoard[availableFields[i]];
@@ -152,10 +171,11 @@ const gameBoard = (() => {
       return { score: 10 };
     } else if (availableFields.length === 0) {
       return { score: 0 };
-    }
+    }*/
   }
-
+  // check for the win or tie
   function checkWin(board, sign) {
+    //a list with the winning combinations
     const winningCombinations = [
       [0, 1, 2],
       [3, 4, 5],
@@ -167,8 +187,9 @@ const gameBoard = (() => {
       [2, 4, 6], // Diagonals
     ];
 
+    //transforms the 2D array into a simple one
     const flattenedBoard = board.reduce((acc, row) => acc.concat(row), []);
-
+    //check the current state with the winning combinations
     for (let i = 0; i < winningCombinations.length; i++) {
       const [a, b, c] = winningCombinations[i];
       if (
@@ -183,6 +204,7 @@ const gameBoard = (() => {
       }
     }
 
+    //checks for tie
     if (isBoardFull(board) && !winner) {
       winner = "tie";
       boardUi.overlayToggle(winner);
@@ -199,6 +221,7 @@ const gameBoard = (() => {
     return true;
   }
 
+  //resets the game and UI
   function resetGame() {
     gameBoardArray = [
       ["", "", ""],
@@ -221,7 +244,9 @@ const gameBoard = (() => {
   };
 })();
 
+//controlling the UI of the game
 const boardUi = (() => {
+  //showing the overlay after the game ends with a specific message
   function overlayToggle(winner) {
     if (overlay.classList.contains("active")) {
       overlay.classList.remove("active");
@@ -236,6 +261,7 @@ const boardUi = (() => {
     }
   }
 
+  //update buttons style after changing signs
   function updateSignButtonUI(sign) {
     if (sign === "X") {
       gameController.userElementX.classList.add("active");
@@ -246,6 +272,7 @@ const boardUi = (() => {
     }
   }
 
+  //update buttons style after changing second player type
   function updateSecondPlayerUI(secondPlayer) {
     if (secondPlayer === "humanPlayer") {
       gameController.humanPlayer.classList.add("active");
@@ -256,11 +283,13 @@ const boardUi = (() => {
     }
   }
 
+  //update the fields of the game
   function updateGameArray(posField, sign) {
     const targetBtn = gameController.fieldBtn[posField];
     targetBtn.innerHTML = sign;
   }
 
+  //resets the UI
   function resetUI() {
     gameController.fieldBtn.forEach((btn) => {
       btn.innerHTML = "";

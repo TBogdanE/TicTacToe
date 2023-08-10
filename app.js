@@ -3,7 +3,7 @@ const gameController = (() => {
   const userElementO = document.getElementById("w-o");
   const humanPlayer = document.getElementById("opponent-player");
   const aiPlayer = document.getElementById("opponent-ai");
-  const aiPlayerDifficulty = document.getElementById('difficulty');
+  const aiPlayerDifficulty = document.getElementById("difficulty");
   const fieldBtn = document.querySelectorAll(".field");
   const restartBtn = document.getElementById("restart-btn");
   const overlay = document.getElementById("overlay");
@@ -17,9 +17,9 @@ const gameController = (() => {
     gameBoard.setSecondPlayerType("aiPlayer")
   );
 
-  aiPlayerDifficulty.addEventListener('change', () => {
-    gameBoard.aiDifficulty = aiPlayerDifficulty.value;
+  aiPlayerDifficulty.addEventListener("change", () => {
     gameBoard.resetGame();
+    gameBoard.getAiDifficulty(aiPlayerDifficulty.value);
   });
 
   fieldBtn.forEach((btn, index) => {
@@ -60,7 +60,7 @@ const gameBoard = (() => {
   let userTurn = true;
   let secondPlayer = "humanPlayer";
   let secondPlayerSign = "O";
-  let aiDifficulty = 'Easy';
+  let aiDifficulty = "Easy";
   let winner = undefined;
 
   // Private function to handle user sign selection
@@ -95,7 +95,7 @@ const gameBoard = (() => {
     } else if (!userTurn && secondPlayer === "humanPlayer") {
       makeMove(posX, posY, posField);
     } else if (!userTurn && secondPlayer === "aiPlayer") {
-      moveAi(aiDifficulty);
+      aiPlayer(gameBoardArray, secondPlayer);
     }
   }
 
@@ -114,6 +114,44 @@ const gameBoard = (() => {
       }
     } else {
       console.error("Error! You can\t take this spot");
+    }
+  }
+
+  function getAiDifficulty(difficulty) {
+    aiDifficulty = difficulty;
+  }
+
+  function aiPlayer(newBoard, player) {
+    console.log(aiDifficulty);
+    let availableFields = emptyIndex(newBoard);
+    let moves = [];
+    let move = {};
+    move.index = newBoard[availableFields[i]];
+
+    newBoard[availSpots[i]] = player;
+
+    if (player == aiPlayer) {
+      var result = minimax(newBoard, huPlayer);
+      move.score = result.score;
+    } else {
+      var result = minimax(newBoard, aiPlayer);
+      move.score = result.score;
+    }
+
+    function emptyIndex(board) {
+      return board.filter((s) => s != "O" && s != "X");
+    }
+
+    newBoard[availableFields[i]] = move.index;
+
+    moves.push(move);
+
+    if (checkWin(gameBoardArray, userSign)) {
+      return { score: -10 };
+    } else if (checkWin(gameBoardArray, secondPlayerSign)) {
+      return { score: 10 };
+    } else if (availableFields.length === 0) {
+      return { score: 0 };
     }
   }
 
@@ -141,14 +179,14 @@ const gameBoard = (() => {
         winner = sign;
         console.log(`Winner: ${winner}`);
         boardUi.overlayToggle(winner);
-        return;
+        return winner;
       }
     }
 
     if (isBoardFull(board) && !winner) {
       winner = "tie";
       boardUi.overlayToggle(winner);
-      return;
+      return winner;
     }
   }
 
@@ -179,6 +217,7 @@ const gameBoard = (() => {
     setSecondPlayerType,
     startGame,
     resetGame,
+    getAiDifficulty,
   };
 })();
 

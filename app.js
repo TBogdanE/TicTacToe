@@ -103,8 +103,6 @@ const gameBoard = (() => {
       makeMove(posX, posY, posField);
     } else if (!userTurn && secondPlayer === "humanPlayer") {
       makeMove(posX, posY, posField);
-    } else if (!userTurn && secondPlayer === "aiPlayer") {
-      aiPlayer(gameBoardArray, secondPlayer);
     }
   }
 
@@ -114,13 +112,16 @@ const gameBoard = (() => {
       if (userTurn === true) {
         gameBoardArray[posX][posY] = userSign;
         boardUi.updateGameArray(posField, userSign);
-        userTurn = false;
         checkWin(gameBoardArray, userSign);
+        userTurn = false;
+        if (secondPlayer === "aiPlayer") {
+          aiPlayer(aiDifficulty);
+        }
       } else {
         gameBoardArray[posX][posY] = secondPlayerSign;
         boardUi.updateGameArray(posField, secondPlayerSign);
-        userTurn = true;
         checkWin(gameBoardArray, secondPlayerSign);
+        userTurn = true;
       }
     } else {
       console.error("Error! You can\t take this spot");
@@ -133,46 +134,36 @@ const gameBoard = (() => {
     return aiDifficulty;
   }
 
-  const currentArrayState = gameBoardArray
+  function aiPlayer(aiDifficulty) {
+    if (aiDifficulty === "Easy") {
+      const randomField = Math.floor(Math.random() * 9);
+      const posX = Math.floor(randomField / 3);
+      const posY = randomField % 3;
+      if (gameBoardArray[posX][posY] === "") {
+        makeMove(posX, posY, randomField);
+        console.log(gameBoardArray);
+      } else {
+        aiPlayer(aiDifficulty);
+      }
+    }
+  }
+
+  //makes a copy of the array's current state
+  /*const currentBoardState = gameBoardArray
     .map((row) => [...row])
     .reduce((acc, row) => acc.concat(row), []);
 
-  function emptyCell(currentArrayState) {
-    return currentArrayState.filter((i) => i !== "X" && i !== "O");
-  }
-
-  function aiPlayer(currentBS, sign) {
-    /*let availableFields = emptyIndex(newBoard);
-    let moves = [];
-    let move = {};
-    move.index = newBoard[availableFields[i]];
-
-    newBoard[availSpots[i]] = player;
-
-    if (player == aiPlayer) {
-      var result = minimax(newBoard, huPlayer);
-      move.score = result.score;
-    } else {
-      var result = minimax(newBoard, aiPlayer);
-      move.score = result.score;
+  //returns every empty fields in the current state
+  function emptyCellIndexes(currentBoardState) {
+    const emptyIndexes = [];
+    for (let i = 0; i < currentBoardState.length; i++) {
+      if (currentBoardState[i] !== "X" && currentBoardState[i] !== "O") {
+        emptyIndexes.push(i);
+      }
     }
+    return emptyIndexes;
+  }*/
 
-    function emptyIndex(board) {
-      return board.filter((s) => s != "O" && s != "X");
-    }
-
-    newBoard[availableFields[i]] = move.index;
-
-    moves.push(move);
-
-    if (checkWin(gameBoardArray, userSign)) {
-      return { score: -10 };
-    } else if (checkWin(gameBoardArray, secondPlayerSign)) {
-      return { score: 10 };
-    } else if (availableFields.length === 0) {
-      return { score: 0 };
-    }*/
-  }
   // check for the win or tie
   function checkWin(board, sign) {
     //a list with the winning combinations

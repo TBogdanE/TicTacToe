@@ -23,7 +23,7 @@ const gameController = (() => {
   //set aiPlayer difficulty
   aiPlayerDifficulty.addEventListener("change", () => {
     gameBoard.resetGame();
-    gameBoard.getAiDifficulty(aiPlayerDifficulty.value);
+    gameBoard.setAiDifficulty(aiPlayerDifficulty.value);
   });
 
   //getting all the fields of the game
@@ -109,7 +109,7 @@ const gameBoard = (() => {
   // makes the user and human second player moves
   function makeMove(posX, posY, posField) {
     if (gameBoardArray[posX][posY] === "") {
-      if (userTurn === true) {
+      if (userTurn) {
         gameBoardArray[posX][posY] = userSign;
         boardUi.updateGameArray(posField, userSign);
         checkWin(gameBoardArray, userSign);
@@ -124,17 +124,17 @@ const gameBoard = (() => {
         userTurn = true;
       }
     } else {
-      console.error("Error! You can\t take this spot");
+      console.error("Error! You can't take this spot");
     }
   }
 
-  //setting the difficulty level of the aiPlayer
-  function getAiDifficulty(difficulty) {
+  function setAiDifficulty(difficulty) {
     aiDifficulty = difficulty;
-    return aiDifficulty;
   }
 
+  //setting the difficulty level of the aiPlayer
   function aiPlayer(aiDifficulty) {
+    console.log(aiDifficulty);
     if (aiDifficulty === "Easy") {
       const randomField = Math.floor(Math.random() * 9);
       const posX = Math.floor(randomField / 3);
@@ -145,13 +145,26 @@ const gameBoard = (() => {
       } else {
         aiPlayer(aiDifficulty);
       }
+    } else if (aiDifficulty === "Medium") {
+      minimax(aiDifficulty);
+      console.log("medium");
+    } else if (aiDifficulty === "Hard") {
+      minimax(aiDifficulty);
+    } else {
+      console.log("Error, no correct difficulty");
+      console.log(aiDifficulty);
     }
   }
 
+  function minimax(aiDifficulty) {
+    const currentBoardState = gameBoardArray
+      .map((row) => [...row])
+      .reduce((acc, row) => acc.concat(row), []);
+    console.log(`${currentBoardState}, ${aiDifficulty}`);
+  }
+
   //makes a copy of the array's current state
-  /*const currentBoardState = gameBoardArray
-    .map((row) => [...row])
-    .reduce((acc, row) => acc.concat(row), []);
+  /*
 
   //returns every empty fields in the current state
   function emptyCellIndexes(currentBoardState) {
@@ -221,6 +234,7 @@ const gameBoard = (() => {
     ];
     userTurn = true;
     winner = undefined;
+    //aiDifficulty = 'Easy';
     boardUi.resetUI();
     boardUi.updateSignButtonUI(userSign); // Update user sign UI
     boardUi.updateSecondPlayerUI(secondPlayer); // Update second player UI
@@ -231,7 +245,7 @@ const gameBoard = (() => {
     setSecondPlayerType,
     startGame,
     resetGame,
-    getAiDifficulty,
+    setAiDifficulty,
   };
 })();
 

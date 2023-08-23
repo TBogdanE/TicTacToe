@@ -1,4 +1,3 @@
-//Event Listeners and everything that can be controlled on the page
 const gameController = (() => {
   //initialising variables
   const userElementX = document.getElementById("w-x");
@@ -134,7 +133,6 @@ const gameBoard = (() => {
 
   //setting the difficulty level of the aiPlayer
   function aiPlayer(aiDifficulty) {
-    console.log(aiDifficulty);
     if (aiDifficulty === "Easy") {
       const randomField = Math.floor(Math.random() * 9);
       const posX = Math.floor(randomField / 3);
@@ -143,39 +141,136 @@ const gameBoard = (() => {
         makeMove(posX, posY, randomField);
         console.log(gameBoardArray);
       } else {
+        console.log("Spot taken");
         aiPlayer(aiDifficulty);
       }
     } else if (aiDifficulty === "Medium") {
-      minimax(aiDifficulty);
-      console.log("medium");
+      const bestMovePos = minimax(
+        currentBoardState(gameBoardArray),
+        secondPlayerSign
+      );
+      console.log(`Difficulty is set to: ${aiDifficulty}`);
     } else if (aiDifficulty === "Hard") {
-      minimax(aiDifficulty);
-    } else {
-      console.log("Error, no correct difficulty");
-      console.log(aiDifficulty);
+      const bestMovePos = minimax(
+        currentBoardState(gameBoardArray),
+        secondPlayerSign
+      );
+      const bestMovePosIndex = bestMovePos.index;
+      const posX = Math.floor(bestMovePos.index / 3);
+      const posY = bestMovePos.index % 3;
+      console.log(posX, posY, bestMovePosIndex);
+      makeMove(posX, posY, bestMovePosIndex);
+      console.log(`Difficulty is set to: ${aiDifficulty}`);
     }
   }
 
-  function minimax(aiDifficulty) {
-    const currentBoardState = gameBoardArray
-      .map((row) => [...row])
-      .reduce((acc, row) => acc.concat(row), []);
-    console.log(`${currentBoardState}, ${aiDifficulty}`);
+  function currentBoardState(gameBoardArray) {
+    return gameBoardArray.map((row) => [...row]).flat();
   }
 
-  //makes a copy of the array's current state
-  /*
+  function getAllEmptyCellsIndexes(currBdSt) {
+    let emptyCellsIndexes = [];
 
-  //returns every empty fields in the current state
-  function emptyCellIndexes(currentBoardState) {
-    const emptyIndexes = [];
-    for (let i = 0; i < currentBoardState.length; i++) {
-      if (currentBoardState[i] !== "X" && currentBoardState[i] !== "O") {
-        emptyIndexes.push(i);
+    for (let i = 0; i < currBdSt.length; i++) {
+      if (currBdSt[i] !== "X" && currBdSt[i] !== "O") {
+        emptyCellsIndexes.push(i);
       }
     }
-    return emptyIndexes;
-  }*/
+    return emptyCellsIndexes;
+  }
+
+  function checkIfWinnerFound(currBdSt, currMark) {
+    if (
+      (currBdSt[0] === currMark &&
+        currBdSt[1] === currMark &&
+        currBdSt[2] === currMark) ||
+      (currBdSt[3] === currMark &&
+        currBdSt[4] === currMark &&
+        currBdSt[5] === currMark) ||
+      (currBdSt[6] === currMark &&
+        currBdSt[7] === currMark &&
+        currBdSt[8] === currMark) ||
+      (currBdSt[0] === currMark &&
+        currBdSt[3] === currMark &&
+        currBdSt[6] === currMark) ||
+      (currBdSt[1] === currMark &&
+        currBdSt[4] === currMark &&
+        currBdSt[7] === currMark) ||
+      (currBdSt[2] === currMark &&
+        currBdSt[5] === currMark &&
+        currBdSt[8] === currMark) ||
+      (currBdSt[0] === currMark &&
+        currBdSt[4] === currMark &&
+        currBdSt[8] === currMark) ||
+      (currBdSt[2] === currMark &&
+        currBdSt[4] === currMark &&
+        currBdSt[6] === currMark)
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function minimax(currBdSt, currMark) {
+    const availCellsIndexes = getAllEmptyCellsIndexes(currBdSt);
+    if (checkIfWinnerFound(currBdSt, userSign)) {
+      //console.log(`User wins! Sign: ${userSign}`);
+      return { score: -1 };
+    } else if (checkIfWinnerFound(currBdSt, secondPlayerSign)) {
+      //console.log(`Computer wins! Sign: ${secondPlayerSign}`);
+      return { score: 1 };
+    } else if (availCellsIndexes.length === 0) {
+      //console.log("Tie");
+      return { score: 0 };
+    }
+
+    const allTestPlayInfos = [];
+
+    for (let i = 0; i < availCellsIndexes.length; i++) {
+      const currentTestPlayInfo = {};
+      //inainte era currentTestPlayInfo.index = currBdSt[availCellsIndexes[i]];
+      currentTestPlayInfo.index = availCellsIndexes[i];
+      //console.log(currentTestPlayInfo.index);
+      currBdSt[availCellsIndexes[i]] = currMark;
+      if (currMark === secondPlayerSign) {
+        const result = minimax(currBdSt, userSign);
+        currentTestPlayInfo.score = result.score;
+      } else {
+        const result = minimax(currBdSt, secondPlayerSign);
+        currentTestPlayInfo.score = result.score;
+      }
+      currBdSt[availCellsIndexes[i]] = currentTestPlayInfo.index;
+      allTestPlayInfos.push(currentTestPlayInfo);
+    }
+
+    let bestTestPlay = null;
+
+    if (currMark === secondPlayerSign) {
+      let bestScore = -Infinity;
+      for (let i = 0; i < allTestPlayInfos.length; i++) {
+        if (allTestPlayInfos[i].score > bestScore) {
+          bestScore = allTestPlayInfos[i].score;
+          bestTestPlay = i;
+        }
+      }
+    } else {
+      let bestScore = Infinity;
+      for (let i = 0; i < allTestPlayInfos.length; i++) {
+        if (allTestPlayInfos[i].score < bestScore) {
+          bestScore = allTestPlayInfos[i].score;
+          bestTestPlay = i;
+        }
+      }
+    }
+    //console.log(`currBdSt: ${currBdSt};\n boardArray: ${gameBoardArray}`);
+    //console.log(allTestPlayInfos);
+    /*for(let a in allTestPlayInfos) {
+      console.log(allTestPlayInfos[a]);
+    }*/
+    console.log(allTestPlayInfos);
+    return allTestPlayInfos[bestTestPlay];
+  }
 
   // check for the win or tie
   function checkWin(board, sign) {

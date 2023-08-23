@@ -28,9 +28,7 @@ const gameController = (() => {
   //getting all the fields of the game
   fieldBtn.forEach((btn, index) => {
     //getting the coordonates in the 2D array
-    const x = Math.floor(index / 3);
-    const y = index % 3;
-    btn.addEventListener("click", () => gameBoard.startGame(x, y, index));
+    btn.addEventListener("click", () => gameBoard.startGame(index));
   });
 
   //initialising the restart btn
@@ -60,11 +58,7 @@ const gameController = (() => {
 //main logic of the game
 const gameBoard = (() => {
   //initialising the array
-  let gameBoardArray = [
-    ["", "", ""],
-    ["", "", ""],
-    ["", "", ""],
-  ];
+  let gameBoardArray = ["", "", "", "", "", "", "", "", ""];
 
   //initialising variables
   let userSign = "X";
@@ -91,7 +85,7 @@ const gameBoard = (() => {
   }
 
   //playing the game
-  function startGame(posX, posY, posField) {
+  function startGame(posField) {
     //checks if the game is won, so players cannot make new moves
     if (winner !== undefined) {
       console.log("Game has already been won!");
@@ -99,17 +93,17 @@ const gameBoard = (() => {
     }
     //switching the turns and make secondPlayer move acording to player type
     if (userTurn) {
-      makeMove(posX, posY, posField);
+      makeMove(posField);
     } else if (!userTurn && secondPlayer === "humanPlayer") {
-      makeMove(posX, posY, posField);
+      makeMove(posField);
     }
   }
 
   // makes the user and human second player moves
-  function makeMove(posX, posY, posField) {
-    if (gameBoardArray[posX][posY] === "") {
+  function makeMove(posField) {
+    if (gameBoardArray[posField] === "") {
       if (userTurn) {
-        gameBoardArray[posX][posY] = userSign;
+        gameBoardArray[posField] = userSign;
         boardUi.updateGameArray(posField, userSign);
         checkWin(gameBoardArray, userSign);
         userTurn = false;
@@ -117,7 +111,7 @@ const gameBoard = (() => {
           aiPlayer(aiDifficulty);
         }
       } else {
-        gameBoardArray[posX][posY] = secondPlayerSign;
+        gameBoardArray[posField] = secondPlayerSign;
         boardUi.updateGameArray(posField, secondPlayerSign);
         checkWin(gameBoardArray, secondPlayerSign);
         userTurn = true;
@@ -135,39 +129,35 @@ const gameBoard = (() => {
   function aiPlayer(aiDifficulty) {
     if (aiDifficulty === "Easy") {
       const randomField = Math.floor(Math.random() * 9);
-      const posX = Math.floor(randomField / 3);
-      const posY = randomField % 3;
-      if (gameBoardArray[posX][posY] === "") {
-        makeMove(posX, posY, randomField);
+      if (gameBoardArray[randomField] === "") {
+        makeMove(randomField);
         console.log(gameBoardArray);
       } else {
         console.log("Spot taken");
         aiPlayer(aiDifficulty);
       }
-    } else if (aiDifficulty === "Medium") {
+    } /*else if (aiDifficulty === "Medium") {
       const bestMovePos = minimax(
         currentBoardState(gameBoardArray),
         secondPlayerSign
       );
       console.log(`Difficulty is set to: ${aiDifficulty}`);
-    } else if (aiDifficulty === "Hard") {
+    }*/ else if (aiDifficulty === "Hard") {
       const bestMovePos = minimax(
         currentBoardState(gameBoardArray),
         secondPlayerSign
       );
       const bestMovePosIndex = bestMovePos.index;
-      const posX = Math.floor(bestMovePos.index / 3);
-      const posY = bestMovePos.index % 3;
-      console.log(posX, posY, bestMovePosIndex);
-      makeMove(posX, posY, bestMovePosIndex);
+      console.log(bestMovePosIndex);
+      makeMove(bestMovePosIndex);
       console.log(`Difficulty is set to: ${aiDifficulty}`);
     }
   }
 
   function currentBoardState(gameBoardArray) {
-    return gameBoardArray.map((row) => [...row]).flat();
+    return [...gameBoardArray];
   }
-
+  
   function getAllEmptyCellsIndexes(currBdSt) {
     let emptyCellsIndexes = [];
 
@@ -286,16 +276,10 @@ const gameBoard = (() => {
       [2, 4, 6], // Diagonals
     ];
 
-    //transforms the 2D array into a simple one
-    const flattenedBoard = board.reduce((acc, row) => acc.concat(row), []);
     //check the current state with the winning combinations
     for (let i = 0; i < winningCombinations.length; i++) {
       const [a, b, c] = winningCombinations[i];
-      if (
-        flattenedBoard[a] === sign &&
-        flattenedBoard[b] === sign &&
-        flattenedBoard[c] === sign
-      ) {
+      if (board[a] === sign && board[b] === sign && board[c] === sign) {
         winner = sign;
         console.log(`Winner: ${winner}`);
         boardUi.overlayToggle(winner);
@@ -322,11 +306,7 @@ const gameBoard = (() => {
 
   //resets the game and UI
   function resetGame() {
-    gameBoardArray = [
-      ["", "", ""],
-      ["", "", ""],
-      ["", "", ""],
-    ];
+    gameBoardArray = ["", "", "", "", "", "", "", "", ""];
     userTurn = true;
     winner = undefined;
     //aiDifficulty = 'Easy';

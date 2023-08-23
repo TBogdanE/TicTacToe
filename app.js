@@ -101,48 +101,59 @@ const gameBoard = (() => {
 
   // makes the user and human second player moves
   function makeMove(posField) {
+    //checks if the field is empty
     if (gameBoardArray[posField] === "") {
+      //executes users move
       if (userTurn) {
         gameBoardArray[posField] = userSign;
         boardUi.updateGameArray(posField, userSign);
         checkWin(gameBoardArray, userSign);
         userTurn = false;
+        //checks if second player is AI, so it will be called after user makes move
         if (secondPlayer === "aiPlayer") {
           aiPlayer(aiDifficulty);
         }
       } else {
+        //executes second player move
         gameBoardArray[posField] = secondPlayerSign;
         boardUi.updateGameArray(posField, secondPlayerSign);
         checkWin(gameBoardArray, secondPlayerSign);
         userTurn = true;
       }
     } else {
+      //prints error if field is already used
       console.error("Error! You can't take this spot");
     }
   }
 
+  //sets the difficulty for the aiPlayer
   function setAiDifficulty(difficulty) {
     aiDifficulty = difficulty;
   }
 
-  //setting the difficulty level of the aiPlayer
+  //aiPlayer configuration
   function aiPlayer(aiDifficulty) {
+    //creates a copy of actual gameboard array
+    function currentBoardState(gameBoardArray) {
+      return [...gameBoardArray];
+    }
+    //plays the aiPlayer based on selected difficulty
     if (aiDifficulty === "Easy") {
       const randomField = Math.floor(Math.random() * 9);
       if (gameBoardArray[randomField] === "") {
         makeMove(randomField);
-        console.log(gameBoardArray);
-      } else {
-        console.log("Spot taken");
+      } else if (!isBoardFull(gameBoardArray)) {
         aiPlayer(aiDifficulty);
+      } else {
+        return;
       }
-    } /*else if (aiDifficulty === "Medium") {
+    } else if (aiDifficulty === "Medium") {
       const bestMovePos = minimax(
         currentBoardState(gameBoardArray),
         secondPlayerSign
       );
       console.log(`Difficulty is set to: ${aiDifficulty}`);
-    }*/ else if (aiDifficulty === "Hard") {
+    } else if (aiDifficulty === "Hard") {
       const bestMovePos = minimax(
         currentBoardState(gameBoardArray),
         secondPlayerSign
@@ -152,21 +163,6 @@ const gameBoard = (() => {
       makeMove(bestMovePosIndex);
       console.log(`Difficulty is set to: ${aiDifficulty}`);
     }
-  }
-
-  function currentBoardState(gameBoardArray) {
-    return [...gameBoardArray];
-  }
-  
-  function getAllEmptyCellsIndexes(currBdSt) {
-    let emptyCellsIndexes = [];
-
-    for (let i = 0; i < currBdSt.length; i++) {
-      if (currBdSt[i] !== "X" && currBdSt[i] !== "O") {
-        emptyCellsIndexes.push(i);
-      }
-    }
-    return emptyCellsIndexes;
   }
 
   function checkIfWinnerFound(currBdSt, currMark) {
@@ -202,40 +198,61 @@ const gameBoard = (() => {
     }
   }
 
+  //gets the indexes of all the empty cells of the board
+  function getAllEmptyCellsIndexes(currBdSt) {
+    //saves all the indexes here
+    let emptyCellsIndexes = [];
+
+    for (let i = 0; i < currBdSt.length; i++) {
+      if (currBdSt[i] !== "X" && currBdSt[i] !== "O") {
+        emptyCellsIndexes.push(i);
+      }
+    }
+    return emptyCellsIndexes;
+  }
+
+  //minimax AI algorithm
   function minimax(currBdSt, currMark) {
+    //get the indexes of all the empty cells of the board
     const availCellsIndexes = getAllEmptyCellsIndexes(currBdSt);
+    //searches for terminal state
     if (checkIfWinnerFound(currBdSt, userSign)) {
-      //console.log(`User wins! Sign: ${userSign}`);
       return { score: -1 };
     } else if (checkIfWinnerFound(currBdSt, secondPlayerSign)) {
-      //console.log(`Computer wins! Sign: ${secondPlayerSign}`);
       return { score: 1 };
     } else if (availCellsIndexes.length === 0) {
-      //console.log("Tie");
       return { score: 0 };
     }
-
+    //saves each test info
     const allTestPlayInfos = [];
-
+    //loop through all the empty cells
     for (let i = 0; i < availCellsIndexes.length; i++) {
+      //array to store all test plays info
       const currentTestPlayInfo = {};
       //inainte era currentTestPlayInfo.index = currBdSt[availCellsIndexes[i]];
+      //saves the index of the cell that for loop is currently checking
       currentTestPlayInfo.index = availCellsIndexes[i];
-      //console.log(currentTestPlayInfo.index);
+      //places current player sign on the cell that for loop is currently checking
       currBdSt[availCellsIndexes[i]] = currMark;
       if (currMark === secondPlayerSign) {
+        //recursively run minimax function for the new case
         const result = minimax(currBdSt, userSign);
+        //saves the result variable's score intro currentTestPlayInfo object
         currentTestPlayInfo.score = result.score;
       } else {
+        //recursively run minimax function for the new case
         const result = minimax(currBdSt, secondPlayerSign);
+        //saves the result variable's score intro currentTestPlayInfo object
         currentTestPlayInfo.score = result.score;
       }
+      // reset the current board back to the state it was before the current player made its move
       currBdSt[availCellsIndexes[i]] = currentTestPlayInfo.index;
+      //save the result of the current player test-play for future use
       allTestPlayInfos.push(currentTestPlayInfo);
     }
-
+    //variable used for storing best test-play reference
     let bestTestPlay = null;
-
+    //get the reference to the current player best test-play
     if (currMark === secondPlayerSign) {
       let bestScore = -Infinity;
       for (let i = 0; i < allTestPlayInfos.length; i++) {
@@ -253,12 +270,7 @@ const gameBoard = (() => {
         }
       }
     }
-    //console.log(`currBdSt: ${currBdSt};\n boardArray: ${gameBoardArray}`);
-    //console.log(allTestPlayInfos);
-    /*for(let a in allTestPlayInfos) {
-      console.log(allTestPlayInfos[a]);
-    }*/
-    console.log(allTestPlayInfos);
+    //get the obeject with the best test-play score for the ai player
     return allTestPlayInfos[bestTestPlay];
   }
 
@@ -283,21 +295,20 @@ const gameBoard = (() => {
         winner = sign;
         console.log(`Winner: ${winner}`);
         boardUi.overlayToggle(winner);
+        console.log(winner);
+        return winner;
+      } else if (isBoardFull(board) && !winner) {
+        winner = "tie";
+        boardUi.overlayToggle(winner);
+        console.log(winner);
         return winner;
       }
-    }
-
-    //checks for tie
-    if (isBoardFull(board) && !winner) {
-      winner = "tie";
-      boardUi.overlayToggle(winner);
-      return winner;
     }
   }
 
   function isBoardFull(board) {
-    for (let row of board) {
-      if (row.includes("")) {
+    for (let element of board) {
+      if (element == "") {
         return false;
       }
     }

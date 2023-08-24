@@ -107,7 +107,7 @@ const gameBoard = (() => {
       if (userTurn) {
         gameBoardArray[posField] = userSign;
         boardUi.updateGameArray(posField, userSign);
-        checkWin(gameBoardArray, userSign);
+        checkWin(gameBoardArray, userSign, false);
         userTurn = false;
         //checks if second player is AI, so it will be called after user makes move
         if (secondPlayer === "aiPlayer") {
@@ -117,7 +117,7 @@ const gameBoard = (() => {
         //executes second player move
         gameBoardArray[posField] = secondPlayerSign;
         boardUi.updateGameArray(posField, secondPlayerSign);
-        checkWin(gameBoardArray, secondPlayerSign);
+        checkWin(gameBoardArray, secondPlayerSign, false);
         userTurn = true;
       }
     } else {
@@ -161,40 +161,6 @@ const gameBoard = (() => {
       const bestMovePosIndex = bestMovePos.index;
       console.log(bestMovePosIndex);
       makeMove(bestMovePosIndex);
-      console.log(`Difficulty is set to: ${aiDifficulty}`);
-    }
-  }
-
-  function checkIfWinnerFound(currBdSt, currMark) {
-    if (
-      (currBdSt[0] === currMark &&
-        currBdSt[1] === currMark &&
-        currBdSt[2] === currMark) ||
-      (currBdSt[3] === currMark &&
-        currBdSt[4] === currMark &&
-        currBdSt[5] === currMark) ||
-      (currBdSt[6] === currMark &&
-        currBdSt[7] === currMark &&
-        currBdSt[8] === currMark) ||
-      (currBdSt[0] === currMark &&
-        currBdSt[3] === currMark &&
-        currBdSt[6] === currMark) ||
-      (currBdSt[1] === currMark &&
-        currBdSt[4] === currMark &&
-        currBdSt[7] === currMark) ||
-      (currBdSt[2] === currMark &&
-        currBdSt[5] === currMark &&
-        currBdSt[8] === currMark) ||
-      (currBdSt[0] === currMark &&
-        currBdSt[4] === currMark &&
-        currBdSt[8] === currMark) ||
-      (currBdSt[2] === currMark &&
-        currBdSt[4] === currMark &&
-        currBdSt[6] === currMark)
-    ) {
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -216,9 +182,9 @@ const gameBoard = (() => {
     //get the indexes of all the empty cells of the board
     const availCellsIndexes = getAllEmptyCellsIndexes(currBdSt);
     //searches for terminal state
-    if (checkIfWinnerFound(currBdSt, userSign)) {
+    if (checkWin(currBdSt, userSign, true)) {
       return { score: -1 };
-    } else if (checkIfWinnerFound(currBdSt, secondPlayerSign)) {
+    } else if (checkWin(currBdSt, secondPlayerSign, true)) {
       return { score: 1 };
     } else if (availCellsIndexes.length === 0) {
       return { score: 0 };
@@ -275,7 +241,7 @@ const gameBoard = (() => {
   }
 
   // check for the win or tie
-  function checkWin(board, sign) {
+  function checkWin(board, sign, aiCheck) {
     //a list with the winning combinations
     const winningCombinations = [
       [0, 1, 2],
@@ -289,6 +255,16 @@ const gameBoard = (() => {
     ];
 
     //check the current state with the winning combinations
+    if (aiCheck) {
+      for (let i = 0; i < winningCombinations.length; i++) {
+        const [a, b, c] = winningCombinations[i];
+        if (board[a] === sign && board[b] === sign && board[c] === sign) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     for (let i = 0; i < winningCombinations.length; i++) {
       const [a, b, c] = winningCombinations[i];
       if (board[a] === sign && board[b] === sign && board[c] === sign) {

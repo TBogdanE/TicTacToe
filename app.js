@@ -67,6 +67,7 @@ const gameBoard = (() => {
   let secondPlayerSign = "O";
   let aiDifficulty = "Easy";
   let winner = undefined;
+  let depthLvl = 0;
 
   // set user and second player sign based on the user sign
   function setUserSign(selectedSign) {
@@ -148,18 +149,22 @@ const gameBoard = (() => {
         return;
       }
     } else if (aiDifficulty === "Medium") {
+      depthLvl = 10;
       const bestMovePos = minimax(
         currentBoardState(gameBoardArray),
-        secondPlayerSign
-      );
-      console.log(`Difficulty is set to: ${aiDifficulty}`);
-    } else if (aiDifficulty === "Hard") {
-      const bestMovePos = minimax(
-        currentBoardState(gameBoardArray),
-        secondPlayerSign
+        secondPlayerSign,
+        depthLvl
       );
       const bestMovePosIndex = bestMovePos.index;
-      console.log(bestMovePosIndex);
+      makeMove(bestMovePosIndex);
+    } else if (aiDifficulty === "Hard") {
+      depthLvl = 0;
+      const bestMovePos = minimax(
+        currentBoardState(gameBoardArray),
+        secondPlayerSign,
+        depthLvl
+      );
+      const bestMovePosIndex = bestMovePos.index;
       makeMove(bestMovePosIndex);
     }
   }
@@ -178,7 +183,7 @@ const gameBoard = (() => {
   }
 
   //minimax AI algorithm
-  function minimax(currBdSt, currMark) {
+  function minimax(currBdSt, currMark, depth) {
     //get the indexes of all the empty cells of the board
     const availCellsIndexes = getAllEmptyCellsIndexes(currBdSt);
     //searches for terminal state
@@ -202,14 +207,14 @@ const gameBoard = (() => {
       currBdSt[availCellsIndexes[i]] = currMark;
       if (currMark === secondPlayerSign) {
         //recursively run minimax function for the new case
-        const result = minimax(currBdSt, userSign);
+        const result = minimax(currBdSt, userSign, depth);
         //saves the result variable's score intro currentTestPlayInfo object
-        currentTestPlayInfo.score = result.score;
+        currentTestPlayInfo.score = result.score - depth;
       } else {
         //recursively run minimax function for the new case
-        const result = minimax(currBdSt, secondPlayerSign);
+        const result = minimax(currBdSt, secondPlayerSign, depth);
         //saves the result variable's score intro currentTestPlayInfo object
-        currentTestPlayInfo.score = result.score;
+        currentTestPlayInfo.score = result.score + depth;
       }
       // reset the current board back to the state it was before the current player made its move
       currBdSt[availCellsIndexes[i]] = currentTestPlayInfo.index;
@@ -237,6 +242,7 @@ const gameBoard = (() => {
       }
     }
     //get the obeject with the best test-play score for the ai player
+
     return allTestPlayInfos[bestTestPlay];
   }
 
@@ -372,11 +378,3 @@ const boardUi = (() => {
     resetUI,
   };
 })();
-
-/* TO DO:
-- DONE - Game board;
-- DONE - Get user sign;
-- DONE - Select opponent;
-- DONE - Update gameBoard;
-- Minmax AI;
-*/

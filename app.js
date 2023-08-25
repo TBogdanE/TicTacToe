@@ -42,6 +42,8 @@ const gameController = (() => {
     ) {
       boardUi.overlayToggle("");
       gameBoard.resetGame();
+    } else {
+      gameBoard.resetGame();
     }
   });
 

@@ -7,6 +7,9 @@ const gameController = (() => {
   const aiPlayerDifficulty = document.getElementById("difficulty");
   const fieldBtn = document.querySelectorAll(".field");
   const restartBtn = document.getElementById("restart-btn");
+  const userScore = document.getElementById("user-score");
+  const secondPlayerScore = document.getElementById("second-player-score");
+  const tieScore = document.getElementById("tie-score");
   const overlay = document.getElementById("overlay");
 
   //set user sign
@@ -16,14 +19,13 @@ const gameController = (() => {
   humanPlayer.addEventListener("click", () =>
     gameBoard.setSecondPlayerType("humanPlayer")
   );
-  aiPlayer.addEventListener("click", () =>
-    gameBoard.setSecondPlayerType("aiPlayer")
-  );
-  //set aiPlayer difficulty
-  aiPlayerDifficulty.addEventListener("change", () => {
-    gameBoard.resetGame();
-    gameBoard.setAiDifficulty(aiPlayerDifficulty.value);
+  aiPlayer.addEventListener("click", () => {
+    gameBoard.setSecondPlayerType("aiPlayer");
   });
+  //set aiPlayer difficulty
+  aiPlayerDifficulty.addEventListener("change", () =>
+    gameBoard.setAiDifficulty(aiPlayerDifficulty.value)
+  );
 
   //getting all the fields of the game
   fieldBtn.forEach((btn, index) => {
@@ -32,7 +34,10 @@ const gameController = (() => {
   });
 
   //initialising the restart btn
-  restartBtn.addEventListener("click", () => gameBoard.resetGame());
+  restartBtn.addEventListener("click", () => {
+    gameBoard.resetGame();
+    gameBoard.resetScore();
+  });
 
   //when user presses ESC after overlay is shown, hide it back and resets the game
   document.addEventListener("keydown", (event) => {
@@ -54,6 +59,9 @@ const gameController = (() => {
     aiPlayer,
     fieldBtn,
     overlay,
+    userScore,
+    secondPlayerScore,
+    tieScore,
   };
 })();
 
@@ -74,6 +82,7 @@ const gameBoard = (() => {
   // set user and second player sign based on the user sign
   function setUserSign(selectedSign) {
     resetGame();
+    resetScore();
     userSign = selectedSign;
     secondPlayerSign = userSign === "X" ? "O" : "X";
     boardUi.updateSignButtonUI(userSign);
@@ -83,6 +92,7 @@ const gameBoard = (() => {
   // sets the second player type
   function setSecondPlayerType(player) {
     resetGame();
+    resetScore();
     secondPlayer = player;
     boardUi.updateSecondPlayerUI(secondPlayer);
   }
@@ -91,7 +101,7 @@ const gameBoard = (() => {
   function startGame(posField) {
     //checks if the game is won, so players cannot make new moves
     if (winner !== undefined) {
-      console.log("Game has already been won!");
+      console.error("Game has already been won!");
       return;
     }
     //switching the turns and make secondPlayer move acording to player type
@@ -131,6 +141,8 @@ const gameBoard = (() => {
 
   //sets the difficulty for the aiPlayer
   function setAiDifficulty(difficulty) {
+    resetGame();
+    resetScore();
     aiDifficulty = difficulty;
   }
 
@@ -277,14 +289,13 @@ const gameBoard = (() => {
       const [a, b, c] = winningCombinations[i];
       if (board[a] === sign && board[b] === sign && board[c] === sign) {
         winner = sign;
-        console.log(`Winner: ${winner}`);
         boardUi.overlayToggle(winner);
-        console.log(winner);
+        boardUi.updateScoreMenu(winner);
         return winner;
       } else if (isBoardFull(board) && !winner) {
         winner = "tie";
         boardUi.overlayToggle(winner);
-        console.log(winner);
+        boardUi.updateScoreMenu(winner);
         return winner;
       }
     }
@@ -299,12 +310,17 @@ const gameBoard = (() => {
     return true;
   }
 
+  function resetScore() {
+    gameController.userScore.innerText = "0";
+    gameController.secondPlayerScore.innerText = "0";
+    gameController.tieScore.innerText = "0";
+  }
+
   //resets the game and UI
   function resetGame() {
     gameBoardArray = ["", "", "", "", "", "", "", "", ""];
     userTurn = true;
     winner = undefined;
-    //aiDifficulty = 'Easy';
     boardUi.resetUI();
     boardUi.updateSignButtonUI(userSign); // Update user sign UI
     boardUi.updateSecondPlayerUI(secondPlayer); // Update second player UI
@@ -312,8 +328,10 @@ const gameBoard = (() => {
 
   return {
     setUserSign,
+    userSign,
     setSecondPlayerType,
     startGame,
+    resetScore,
     resetGame,
     setAiDifficulty,
   };
@@ -364,11 +382,33 @@ const boardUi = (() => {
     targetBtn.innerHTML = sign;
   }
 
+  function updateScoreMenu(winner) {
+    if (winner === "X") {
+      if (gameBoard.userSign === winner) {
+        gameController.userScore.innerText =
+          parseInt(gameController.userScore.innerText) + 1;
+      } else {
+        gameController.secondPlayerScore.innerText =
+          parseInt(gameController.secondPlayerScore.innerText) + 1;
+      }
+    } else if (winner === "O") {
+      if (gameBoard.userSign === winner) {
+        gameController.userScore.innerText =
+          parseInt(gameController.userScore.innerText) + 1;
+      } else {
+        gameController.secondPlayerScore.innerText =
+          parseInt(gameController.secondPlayerScore.innerText) + 1;
+      }
+    } else if (winner === "tie") {
+      gameController.tieScore.innerText =
+        parseInt(gameController.tieScore.innerText) + 1;
+    }
+  }
+
   //resets the UI
   function resetUI() {
     gameController.fieldBtn.forEach((btn) => {
       btn.innerHTML = "";
-      console.log();
     });
   }
 
@@ -377,6 +417,7 @@ const boardUi = (() => {
     updateSecondPlayerUI,
     updateGameArray,
     overlayToggle,
+    updateScoreMenu,
     resetUI,
   };
 })();

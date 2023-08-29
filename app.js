@@ -81,19 +81,21 @@ const gameBoard = (() => {
 
   // set user and second player sign based on the user sign
   function setUserSign(selectedSign) {
-    resetGame();
     resetScore();
+    resetGame();
     userSign = selectedSign;
     secondPlayerSign = userSign === "X" ? "O" : "X";
     boardUi.updateSignButtonUI(userSign);
-    return userSign;
+    console.log(
+      `User sign: ${userSign}\n Second player sign: ${secondPlayerSign}`
+    );
   }
 
   // sets the second player type
-  function setSecondPlayerType(player) {
+  function setSecondPlayerType(playerType) {
     resetGame();
     resetScore();
-    secondPlayer = player;
+    secondPlayer = playerType;
     boardUi.updateSecondPlayerUI(secondPlayer);
   }
 
@@ -285,18 +287,19 @@ const gameBoard = (() => {
       return false;
     }
 
-    for (let i = 0; i < winningCombinations.length; i++) {
-      const [a, b, c] = winningCombinations[i];
-      if (board[a] === sign && board[b] === sign && board[c] === sign) {
-        winner = sign;
-        boardUi.overlayToggle(winner);
-        boardUi.updateScoreMenu(winner);
-        return winner;
-      } else if (isBoardFull(board) && !winner) {
-        winner = "tie";
-        boardUi.overlayToggle(winner);
-        boardUi.updateScoreMenu(winner);
-        return winner;
+    if (isBoardFull(board) && !winner) {
+      winner = "tie";
+      boardUi.overlayToggle(winner);
+      updateMenuScore(winner);
+    } else {
+      for (let i = 0; i < winningCombinations.length; i++) {
+        const [a, b, c] = winningCombinations[i];
+        if (board[a] === sign && board[b] === sign && board[c] === sign) {
+          winner = sign;
+          boardUi.overlayToggle(winner);
+          updateMenuScore(winner);
+          //return winner;
+        }
       }
     }
   }
@@ -310,10 +313,23 @@ const gameBoard = (() => {
     return true;
   }
 
+  function updateMenuScore(winner) {
+    console.log(
+      `User sign: ${userSign}\n Second player sign: ${secondPlayerSign}\n Winner:${winner}`
+    );
+    if (userSign === winner) {
+      gameController.userScore.innerText++;
+    } else if (secondPlayerSign === winner) {
+      gameController.secondPlayerScore.innerText++;
+    } else {
+      gameController.tieScore.innerText++;
+    }
+  }
+
   function resetScore() {
-    gameController.userScore.innerText = "0";
-    gameController.secondPlayerScore.innerText = "0";
-    gameController.tieScore.innerText = "0";
+    gameController.userScore.innerText = 0;
+    gameController.secondPlayerScore.innerText = 0;
+    gameController.tieScore.innerText = 0;
   }
 
   //resets the game and UI
@@ -322,13 +338,14 @@ const gameBoard = (() => {
     userTurn = true;
     winner = undefined;
     boardUi.resetUI();
-    boardUi.updateSignButtonUI(userSign); // Update user sign UI
-    boardUi.updateSecondPlayerUI(secondPlayer); // Update second player UI
+    //boardUi.updateSignButtonUI(userSign); // Update user sign UI
+    //boardUi.updateSecondPlayerUI(secondPlayer); // Update second player UI
   }
 
   return {
     setUserSign,
     userSign,
+    secondPlayerSign,
     setSecondPlayerType,
     startGame,
     resetScore,
@@ -382,29 +399,6 @@ const boardUi = (() => {
     targetBtn.innerHTML = sign;
   }
 
-  function updateScoreMenu(winner) {
-    if (winner === "X") {
-      if (gameBoard.userSign === winner) {
-        gameController.userScore.innerText =
-          parseInt(gameController.userScore.innerText) + 1;
-      } else {
-        gameController.secondPlayerScore.innerText =
-          parseInt(gameController.secondPlayerScore.innerText) + 1;
-      }
-    } else if (winner === "O") {
-      if (gameBoard.userSign === winner) {
-        gameController.userScore.innerText =
-          parseInt(gameController.userScore.innerText) + 1;
-      } else {
-        gameController.secondPlayerScore.innerText =
-          parseInt(gameController.secondPlayerScore.innerText) + 1;
-      }
-    } else if (winner === "tie") {
-      gameController.tieScore.innerText =
-        parseInt(gameController.tieScore.innerText) + 1;
-    }
-  }
-
   //resets the UI
   function resetUI() {
     gameController.fieldBtn.forEach((btn) => {
@@ -417,7 +411,6 @@ const boardUi = (() => {
     updateSecondPlayerUI,
     updateGameArray,
     overlayToggle,
-    updateScoreMenu,
     resetUI,
   };
 })();

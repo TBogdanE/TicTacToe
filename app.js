@@ -125,9 +125,11 @@ const gameBoard = (() => {
         checkWin(gameBoardArray, userSign, false);
         userTurn = false;
         //checks if second player is AI, so it will be called after user makes move
-        if (secondPlayer === "aiPlayer") {
-          aiPlayer(aiDifficulty);
-        }
+        setTimeout(() => {
+          if (secondPlayer === "aiPlayer") {
+            aiPlayer(aiDifficulty);
+          }
+        }, 500);
       } else {
         //executes second player move
         gameBoardArray[posField] = secondPlayerSign;
@@ -368,6 +370,11 @@ const boardUi = (() => {
       } else if (winner === "tie") {
         overlay.innerHTML = `It\'s a tie`;
       }
+      setTimeout(() => {
+        overlay.classList.remove("active");
+        overlay.innerText = "";
+        gameBoard.resetGame();
+      }, 2000);
     }
   }
 
